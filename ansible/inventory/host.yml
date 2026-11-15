@@ -1,0 +1,50 @@
+---
+all:
+  children:
+    # --------------------------------------------------
+    # Single source of truth: one entry per machine
+    # --------------------------------------------------
+    lab_hosts:
+      hosts:
+        alma-ansible-01:
+          ansible_host: 192.168.122.154
+        rocky-ansible-01:
+          ansible_host: 192.168.122.199
+        rhel10:
+          ansible_host: 192.168.122.95
+        ubuntu-ansible-01:
+          ansible_host: 192.168.122.203
+        ubuntu-ansible-02:
+          ansible_host: 192.168.122.210
+
+    # --------------------------------------------------
+    # By OS family
+    # --------------------------------------------------
+    enterprise_linux:
+      hosts:
+        alma-ansible-01:
+        rocky-ansible-01:
+        rhel10:
+
+    ubuntu:
+      hosts:
+        ubuntu-ansible-01:
+        ubuntu-ansible-02:
+
+    # --------------------------------------------------
+    # By role
+    # --------------------------------------------------
+    load_balancers:
+      hosts:
+        ubuntu-ansible-01:
+        ubuntu-ansible-02:
+
+    application_data_tier:
+      children:
+        app_servers:
+          hosts:
+            alma-ansible-01:
+            rocky-ansible-01:
+        db_servers:
+          hosts:
+            rhel10:

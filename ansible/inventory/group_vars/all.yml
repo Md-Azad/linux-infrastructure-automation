@@ -1,0 +1,4 @@
+---
+# Common SSH configuration
+
+ansible_user: ansible
