@@ -2,3 +2,5 @@
   ansible.builtin.import_tasks: validate_os.yml
 - name: install common tool/packages
   ansible.builtin.import_tasks: install_common_tool/install.yml
+- name: validate common tool/packages
+  ansible.builtin.import_tasks: install_common_tool/validate_common_tool.yml
