@@ -1,2 +1,4 @@
 - name: Validate supported operating system
   ansible.builtin.import_tasks: validate_os.yml
+- name: install common tool/packages
+  ansible.builtin.import_tasks: install_common_tool/install.yml

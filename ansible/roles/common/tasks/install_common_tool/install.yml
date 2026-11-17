@@ -1,0 +1,7 @@
+---
+- name: install common packages for REDHAT distribution
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ common_rhel_packages }}"
+  when: ansible_os_family == "RedHat"

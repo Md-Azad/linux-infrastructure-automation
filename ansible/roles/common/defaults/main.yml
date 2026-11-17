@@ -1,0 +1,14 @@
+---
+# Packages for Redhat based distributions
+common_rhel_packages:
+  - curl
+  - wget
+  - vim-enhanced
+  - bind-utils
+
+# Packages for Debian based distributions
+common_debian_packages:
+  - curl
+  - wget
+  - vim
+  - dnsutils
