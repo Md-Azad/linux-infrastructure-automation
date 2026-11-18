@@ -1,0 +1,21 @@
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Validate common packages status in RedHat based distribution
+  ansible.builtin.assert:
+    that:
+      - item in  ansible_facts.packages
+    fail_msg: "{{item }} is not install on {{ansible_facts.hostname}}"
+    success_msg: "{{item  }}  is installed on {{ansible_facts.hostname}} "
+  loop: "{{common_rhel_packages}}"
+  when: ansible_os_family == "RedHat"
+
+- name: Validate common packages status in Debian based distribution
+  ansible.builtin.assert:
+    that:
+      - item in ansible_facts.packages
+    fail_msg: "{{item}} is not installed on {{ansible_facts.hostname}}"
+    success_msg: "{{item}} is installed on {{ansible_facts.hostname}}"
+  loop: "{{common_debian_packages}}"
+  when: ansible_os_family == "Debian"

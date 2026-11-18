@@ -1,0 +1,16 @@
+---
+- name: install common packages for REDHAT distribution
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop: "{{ common_rhel_packages }}"
+  when: ansible_os_family == "RedHat"
+
+- name: install common packages for debian distribution
+  ansible.builtin.apt:
+    name: "{{item}}"
+    state: present
+    update_cache: true
+  loop: "{{common_debian_packages}}"
+  when: ansible_os_family == "Debian"
