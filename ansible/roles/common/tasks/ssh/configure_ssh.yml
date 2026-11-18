@@ -1,0 +1,20 @@
+---
+- name: Install SSH on all server
+  ansible.builtin.package:
+    name: openssh-server
+    state: present
+- name: Ensure SSH is enabled and running
+  ansible.builtin.service:
+    name: "{{common_ssh_service[ansible_os_family]}}"
+    state: started
+    enabled: true
+
+- name: Deploy SSH configuration file
+  ansible.builtin.template:
+    src: sshd_hardening.j2
+    dest: /etc/ssh/sshd_config.d/01-hardening.conf
+    owner: root
+    group: root
+    mode: "0600"
+  notify:
+    - Reload sshd

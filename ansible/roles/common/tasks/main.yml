@@ -8,6 +8,7 @@
   ansible.builtin.import_tasks: chrony/install.yml
 - name: Print Service facts
   ansible.builtin.import_tasks: chrony/validate_chrony.yml
-# - name: print chrony package name
-#   ansible.builtin.debug:
-#     var: chrony_package_name
+- name: install and configure SSH package
+  ansible.builtin.import_tasks: ssh/configure_ssh.yml
+- name: Validate SSH Configuration
+  ansible.builtin.import_tasks: ssh/validate_ssh.yml
