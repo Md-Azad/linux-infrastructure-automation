@@ -18,3 +18,19 @@
       -
     fail_msg: "Chrony is not running and enabled on {{inventory_hostname}}"
     success_msg: "Chrony is running and enabled on {{inventory_hostname}}"
+
+- name: Get configured timezone
+  ansible.builtin.command:
+    cmd: timedatectl show --property=Timezone --value
+  register: timezone_result
+  changed_when: false
+
+- name: print  timezone
+  ansible.builtin.debug:
+    var: timezone_result.stdout
+- name: Validate timezone of all os
+  ansible.builtin.assert:
+    that:
+      - timezone_result.stdout == common_timezone
+    fail_msg: "{{ inventory_hostname }} is in {{ timezone_result.stdout }}, not {{ common_timezone }}"
+    success_msg: "{{ inventory_hostname }} is correctly configured with {{ common_timezone }}"
