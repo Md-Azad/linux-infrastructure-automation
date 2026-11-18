@@ -1,0 +1,11 @@
+---
+- name: Validate ssh configuration
+  ansible.builtin.command:
+    cmd: /usr/sbin/sshd -t
+  listen: Reload sshd
+
+- name: Restart sshd service
+  ansible.builtin.service:
+    name: sshd
+    state: reloaded
+  listen: Reload sshd
