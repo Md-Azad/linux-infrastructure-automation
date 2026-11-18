@@ -1,0 +1,20 @@
+---
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Display Chrony service status
+  ansible.builtin.debug:
+    msg: |
+      OS Family       : {{ ansible_os_family }}
+      Service Name    : {{ chrony_service[ansible_os_family] }}
+      Service State   : {{ ansible_facts.services[chrony_service[ansible_os_family]].state | default('not found') }}
+      Service Status  : {{ ansible_facts.services[chrony_service[ansible_os_family]].status | default('unknown') }}
+- name: Validate chrony service's status
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services[chrony_service[ansible_os_family]] is defined
+      - ansible_facts.services[chrony_service[ansible_os_family]].state == 'running'
+      - ansible_facts.services[chrony_service[ansible_os_family]].status == 'enabled'
+      -
+    fail_msg: "Chrony is not running and enabled on {{inventory_hostname}}"
+    success_msg: "Chrony is running and enabled on {{inventory_hostname}}"

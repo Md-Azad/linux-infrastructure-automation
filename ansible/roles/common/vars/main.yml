@@ -1,0 +1,4 @@
+# Chrony Service name accroding to the OS distribution
+chrony_service:
+  RedHat: chronyd.service
+  Debian: chrony.service

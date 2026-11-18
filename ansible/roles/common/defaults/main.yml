@@ -12,3 +12,5 @@ common_debian_packages:
   - wget
   - vim
   - dnsutils
+# chrony_package_name
+chrony_package_name: chrony
