@@ -12,3 +12,7 @@
   ansible.builtin.import_tasks: ssh/configure_ssh.yml
 - name: Validate SSH Configuration
   ansible.builtin.import_tasks: ssh/validate_ssh.yml
+- name: User and group management
+  ansible.builtin.import_tasks: user_management/create_user_group.yml
+- name: Validate user and group
+  ansible.builtin.import_tasks: user_management/validate_user_group.yml

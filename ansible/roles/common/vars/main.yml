@@ -5,3 +5,10 @@ chrony_service:
 common_ssh_service:
   RedHat: sshd
   Debian: ssh
+
+  # user and group variable
+nologin_shell_mapping:
+  RedHat: /sbin/nologin
+  Debian: /usr/sbin/nologin
+group_name: platform-admins
+user_name: app-deploy

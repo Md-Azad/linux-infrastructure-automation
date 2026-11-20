@@ -1,0 +1,23 @@
+---
+- name: Gather application user information
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user_name }}"
+    fail_key: false
+
+- name: Gather platform administrator group and user's  information
+  ansible.builtin.getent:
+    database: group
+    fail_key: false
+- name: Validate user and group configuration
+  ansible.builtin.assert:
+    that:
+      - user_name in ansible_facts.getent_passwd
+      - group_name in ansible_facts.getent_group
+      - user_name in ansible_facts.getent_group
+      - user_name in ansible_facts.getent_group[group_name][2]
+    fail_msg: >-
+      User or group configuration is incorrect on {{ inventory_hostname }}.
+    success_msg: >-
+      User {{ user_name }} and group {{ group_name }}
+      are configured correctly on {{ inventory_hostname }}.
