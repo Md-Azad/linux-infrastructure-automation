@@ -1,0 +1,33 @@
+---
+- name: Check firewall status for RedHat-based systems
+  ansible.builtin.command:
+    cmd: "firewall-cmd --state"
+  register: firewall_status
+  changed_when: false
+  failed_when: false
+  when: ansible_os_family in ['RedHat']
+- name: Validate firewall status
+  ansible.builtin.assert:
+    that:
+      - firewall_status.rc == 0
+      - firewall_status.stdout == "running"
+    fail_msg: >-
+      Firewall is not running on {{ inventory_hostname }}.
+    success_msg: "Firewall is running."
+  when: ansible_os_family in ['RedHat']
+- name: Check firewall status for Debian-based systems
+  ansible.builtin.command:
+    cmd: "systemctl is-active ufw"
+  register: ufw_status
+  changed_when: false
+  failed_when: false
+  when: ansible_os_family in ['Debian']
+- name: Validate firewall status for Debian-based systems
+  ansible.builtin.assert:
+    that:
+      - ufw_status.rc == 0
+      - ufw_status.stdout == "active"
+    fail_msg: >-
+      UFW is not running on {{ inventory_hostname }}.
+    success_msg: "UFW is running."
+  when: ansible_os_family in ['Debian']
