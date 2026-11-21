@@ -16,3 +16,7 @@
   ansible.builtin.import_tasks: user_management/create_user_group.yml
 - name: Validate user and group
   ansible.builtin.import_tasks: user_management/validate_user_group.yml
+- name: Install firewall and open port for ssh
+  ansible.builtin.import_tasks: firewall/firewalld.yml
+- name: Validate Firewall configureation
+  ansible.builtin.import_tasks: firewall/validate.yml

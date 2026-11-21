@@ -1,0 +1,33 @@
+---
+- name: Check OS family and equivalent firewall package
+  ansible.builtin.fail:
+    msg: "No firewall package for {{ansible_os_family }} to install"
+  when: ansible_os_family not in firewall_services_mapping
+- name: Ensure firewall package install in Both all distributions
+  ansible.builtin.package:
+    name: "{{firewall_services_mapping[ansible_os_family] }}"
+    state: present
+  when: ansible_os_family in firewall_services_mapping
+
+- name: Start firewall and ufw
+  ansible.builtin.service:
+    name: "{{firewall_services_mapping[ansible_os_family]}}"
+    state: "started"
+
+- name: Allowing port 22 for ssh before enabling ssh on RedHat
+  ansible.posix.firewalld:
+    permanent: true
+    immediate: true
+    port: "{{firewall_ports['ssh']}}/tcp"
+    state: enabled
+  when: ansible_os_family == 'RedHat'
+- name: Allowing port 22 for ssh before enabling ssh on Debian
+  community.general.ufw:
+    rule: "allow"
+    port: "{{firewall_ports['ssh']}}"
+    proto: "tcp"
+  when: ansible_os_family == 'Debian'
+- name: Enable firewall and ufw
+  ansible.builtin.service:
+    name: "{{firewall_services_mapping[ansible_os_family]}}"
+    enabled: true

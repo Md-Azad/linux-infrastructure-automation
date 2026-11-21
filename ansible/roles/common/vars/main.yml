@@ -5,6 +5,15 @@ chrony_service:
 common_ssh_service:
   RedHat: sshd
   Debian: ssh
+# Firewall services
+
+firewall_services_mapping:
+  RedHat: firewalld
+  Debian: ufw
+
+# Firewall Ports
+firewall_ports:
+  ssh: 22
 
   # user and group variable
 nologin_shell_mapping:
