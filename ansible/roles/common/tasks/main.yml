@@ -20,3 +20,5 @@
   ansible.builtin.import_tasks: firewall/firewalld.yml
 - name: Validate Firewall configureation
   ansible.builtin.import_tasks: firewall/validate.yml
+- name: Validate resource limit
+  ansible.builtin.import_tasks: validation/validate_limit.yml

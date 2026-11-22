@@ -1,0 +1,73 @@
+---
+- name: Read configured DNS resolvers
+  ansible.builtin.command:
+    cmd: 'awk ''$1 == "nameserver" {print $2}'' /etc/resolv.conf'
+  register: dns_resolver_config
+  changed_when: false
+  failed_when: false
+  when: ansible_os_family in ['RedHat']
+
+- name: Validate DNS resolver configuration
+  ansible.builtin.assert:
+    that:
+      - dns_resolver_config.rc == 0
+      - DNS_resolver in dns_resolver_config.stdout_lines
+    fail_msg: >-
+      Expected DNS resolver {{ DNS_resolver }}
+      was not found on {{ inventory_hostname }}.
+    success_msg: "Expected DNS resolver is configured."
+  when: ansible_os_family in ['RedHat']
+
+- name: Read DNS configuration on Debian systems
+  ansible.builtin.command:
+    cmd: resolvectl dns
+  register: debian_dns_config
+  changed_when: false
+  when: ansible_os_family == "Debian"
+
+- name: Validate DNS configuration on Debian systems
+  ansible.builtin.assert:
+    that:
+      - debian_dns_config.rc == 0
+      - DNS_resolver in debian_dns_config.stdout
+    fail_msg: >-
+      Expected upstream DNS resolver {{ DNS_resolver }}
+      was not found in systemd-resolved configuration
+      on {{ inventory_hostname }}.
+    success_msg: "Expected upstream DNS resolver is configured."
+  when: ansible_os_family == "Debian"
+- name: Check DNS resolver reachability on UDP port 53
+  ansible.builtin.wait_for:
+    host: "{{ DNS_resolver }}"
+    port: "{{ DNS_port }}"
+    state: started
+    timeout: 5
+  register: dns_port_check
+  failed_when: false
+- name: Validate DNS resolver port
+  ansible.builtin.assert:
+    that:
+      - dns_port_check is succeeded
+    fail_msg: >-
+      DNS resolver {{ DNS_resolver }} is not reachable
+      on port {{ DNS_port }}.
+    success_msg: "DNS resolver port is reachable."
+- name: Resolve test domain using configured resolver
+  ansible.builtin.command:
+    cmd: "dig +time=3 +tries=1 +short @{{ DNS_resolver }} {{ DNS_test_domain }} A"
+  register: dns_query_result
+  changed_when: false
+  failed_when: false
+- name: Validate DNS resolution
+  ansible.builtin.assert:
+    that:
+      - dns_query_result.rc == 0
+      - dns_query_result.stdout | trim | length > 0
+      - dns_query_result.stdout_lines | select('match', '^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$') | list | length > 0
+    fail_msg: >-
+      DNS resolution failed for {{ DNS_test_domain }}
+      using resolver {{ DNS_resolver }}.
+      Output: {{ dns_query_result.stdout | default('No response') }}
+    success_msg: >-
+      DNS resolution successful:
+      {{ DNS_test_domain }} resolved using {{ DNS_resolver }}.
