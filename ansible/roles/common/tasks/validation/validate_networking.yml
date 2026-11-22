@@ -1,0 +1,62 @@
+---
+- name: Validate default IPv4 interface exists
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['default_ipv4'] is defined
+      - ansible_facts['default_ipv4']['interface'] is defined
+      - ansible_facts['default_ipv4']['address'] is defined
+    fail_msg: >-
+      No default IPv4 interface or address found on
+      {{ inventory_hostname }}.
+    success_msg: "Default IPv4 interface is available."
+
+- name: Validate inventory IP matches actual server IP
+  ansible.builtin.assert:
+    that:
+      - ansible_host | string in ansible_all_ipv4_addresses
+    fail_msg: >-
+      Inventory IP {{ ansible_host }} does not match
+      any IPv4 address configured on {{ inventory_hostname }}.
+    success_msg: "Inventory IP matches the server configuration."
+
+- name: Display network interface information
+  ansible.builtin.debug:
+    msg:
+      - "Inventory host: {{ inventory_hostname }}"
+      - "Interface: {{ ansible_facts['default_ipv4']['interface'] }}"
+      - "IPv4 address: {{ ansible_facts['default_ipv4']['address'] }}"
+      - "Default gateway: {{ ansible_facts['default_ipv4']['gateway'] | default('Not found') }}"
+
+- name: Read default IPv4 route
+  ansible.builtin.command:
+    cmd: ip -4 route show default
+  register: default_route
+  changed_when: false
+  failed_when: false
+
+- name: Validate default gateway
+  ansible.builtin.assert:
+    that:
+      - default_route.rc == 0
+      - default_route.stdout is search('default via ' ~ common_network_gateway ~ '(\s|$)')
+    fail_msg: >-
+      Expected default gateway {{ common_network_gateway }}
+      was not found on {{ inventory_hostname }}.
+      Actual route: {{ default_route.stdout | default('No route found') }}
+    success_msg: "Expected default gateway is configured."
+
+- name: Check gateway connectivity
+  ansible.builtin.command:
+    cmd: "ping -c 3 -W 2 {{ common_network_gateway }}"
+  register: gateway_ping
+  changed_when: false
+  failed_when: false
+
+- name: Validate gateway connectivity
+  ansible.builtin.assert:
+    that:
+      - gateway_ping.rc == 0
+    fail_msg: >-
+      Gateway {{ common_network_gateway }} is not reachable
+      from {{ inventory_hostname }}.
+    success_msg: "Gateway connectivity is successful."

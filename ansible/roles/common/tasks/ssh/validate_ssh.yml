@@ -1,0 +1,45 @@
+---
+- name: Get effective SSH server configuration
+  ansible.builtin.command:
+    cmd: sshd -T
+  register: sshd_effective_config
+  changed_when: false
+
+- name: Define required SSH settings
+  ansible.builtin.set_fact:
+    required_ssh_settings:
+      - "permitrootlogin no"
+      - "pubkeyauthentication yes"
+      - "passwordauthentication no"
+      - "kbdinteractiveauthentication no"
+      - "permitemptypasswords no"
+      - "x11forwarding no"
+      - "allowtcpforwarding no"
+      - "allowagentforwarding no"
+      - "permittunnel no"
+
+- name: Identify missing or incorrect SSH settings
+  ansible.builtin.set_fact:
+    invalid_ssh_settings: >-
+      {{
+        required_ssh_settings
+        | reject('in', sshd_effective_config.stdout_lines)
+        | list
+      }}
+
+- name: Display SSH validation results
+  ansible.builtin.debug:
+    msg:
+      - "Expected settings: {{ required_ssh_settings | length }}"
+      - "Invalid or missing settings: {{ invalid_ssh_settings }}"
+
+- name: Validate effective SSH configuration
+  ansible.builtin.assert:
+    that:
+      - invalid_ssh_settings | length == 0
+    fail_msg: >-
+      SSH hardening validation failed.
+      Incorrect or missing settings:
+      {{ invalid_ssh_settings | join(', ') }}
+    success_msg: >-
+      All required SSH settings are correctly configured.

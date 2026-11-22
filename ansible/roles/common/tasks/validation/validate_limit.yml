@@ -1,0 +1,69 @@
+---
+- name: Read soft open files limit
+  ansible.builtin.shell:
+    cmd: ulimit -Sn
+    executable: /bin/bash
+  register: nofile_soft
+  changed_when: false
+
+- name: Read hard open files limit
+  ansible.builtin.shell:
+    cmd: ulimit -Hn
+    executable: /bin/bash
+  register: nofile_hard
+  changed_when: false
+
+- name: Read soft user processes limit
+  ansible.builtin.shell:
+    cmd: ulimit -Su
+    executable: /bin/bash
+  register: nproc_soft
+  changed_when: false
+
+- name: Read hard user processes limit
+  ansible.builtin.shell:
+    cmd: ulimit -Hu
+    executable: /bin/bash
+  register: nproc_hard
+  changed_when: false
+
+- name: Read system-wide maximum file handles
+  ansible.builtin.command:
+    cmd: cat /proc/sys/fs/file-max
+  register: system_file_max
+  changed_when: false
+
+- name: Read system-wide file handle statistics
+  ansible.builtin.command:
+    cmd: cat /proc/sys/fs/file-nr
+  register: system_file_nr
+  changed_when: false
+
+- name: Display resource limits report
+  ansible.builtin.debug:
+    msg:
+      - "Host: {{ inventory_hostname }}"
+      - "Soft nofile: {{ nofile_soft.stdout }}"
+      - "Hard nofile: {{ nofile_hard.stdout }}"
+      - "Soft nproc: {{ nproc_soft.stdout }}"
+      - "Hard nproc: {{ nproc_hard.stdout }}"
+      - "System file-max: {{ system_file_max.stdout }}"
+      - "System file-nr: {{ system_file_nr.stdout }}"
+
+- name: Warn when soft nofile limit is below threshold
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: Soft nofile limit ({{ nofile_soft.stdout }})
+      is below the required threshold
+      ({{ common_min_nofile_soft }}) on {{ inventory_hostname }}.
+  when:
+    - nofile_soft.stdout | int < common_min_nofile_soft
+
+- name: Warn when soft nproc limit is below threshold
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: Soft nproc limit ({{ nproc_soft.stdout }})
+      is below the required threshold
+      ({{ common_min_nproc_soft }}) on {{ inventory_hostname }}.
+  when:
+    - nproc_soft.stdout | int < common_min_nproc_soft

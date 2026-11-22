@@ -8,6 +8,17 @@
   ansible.builtin.import_tasks: chrony/install.yml
 - name: Print Service facts
   ansible.builtin.import_tasks: chrony/validate_chrony.yml
-# - name: print chrony package name
-#   ansible.builtin.debug:
-#     var: chrony_package_name
+- name: install and configure SSH package
+  ansible.builtin.import_tasks: ssh/configure_ssh.yml
+- name: Validate SSH Configuration
+  ansible.builtin.import_tasks: ssh/validate_ssh.yml
+- name: User and group management
+  ansible.builtin.import_tasks: user_management/create_user_group.yml
+- name: Validate user and group
+  ansible.builtin.import_tasks: user_management/validate_user_group.yml
+- name: Install firewall and open port for ssh
+  ansible.builtin.import_tasks: firewall/firewalld.yml
+- name: Validate Firewall configureation
+  ansible.builtin.import_tasks: firewall/validate.yml
+- name: Validate resource limit
+  ansible.builtin.import_tasks: validation/validate_limit.yml

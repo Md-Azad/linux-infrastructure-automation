@@ -1,0 +1,20 @@
+---
+- name: Create a group for platform administrators
+  ansible.builtin.group:
+    name: "{{ group_name | mandatory('Group name is not found!')}}"
+    state: present
+- name: Ensure the shared primary group exists first
+  ansible.builtin.group:
+    name: "{{ user_name | mandatory('User name is not found!') }}"
+    state: present
+    system: true
+- name: Create a user for application deployment
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    group: "{{ user_name }}"
+    groups: "{{ group_name }}"
+    append: true
+    create_home: false
+    shell: "{{ nologin_shell_mapping[ansible_facts['os_family']] }}"
+    system: true
+    state: present
