@@ -1,6 +1,4 @@
-- name: Display all gathered facts
-  ansible.builtin.debug:
-    var: ansible_facts
+---
 - name: install nginx
   ansible.builtin.yum:
     name: nginx

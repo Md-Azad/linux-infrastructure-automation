@@ -1,0 +1,10 @@
+---
+- name: Gether service facts
+  ansible.builtin.service_facts:
+- name: Validate Nginx Service
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services['nginx.service'].status == 'enabled'
+      - ansible_facts.services['nginx.service'].state == 'running'
+    fail_msg: " Check {{inventory_hostname}}'s Nginx"
+    success_msg: "Nginx working fine."

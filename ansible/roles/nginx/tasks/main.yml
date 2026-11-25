@@ -1,3 +1,5 @@
 ---
 - name: Configure Nginx on staging servers
   ansible.builtin.import_tasks: install_nginx.yml
+- name: Validate Nginx service
+  ansible.builtin.import_tasks: validation.yml
