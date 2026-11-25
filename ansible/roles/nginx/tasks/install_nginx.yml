@@ -1,0 +1,22 @@
+---
+- name: install nginx
+  ansible.builtin.yum:
+    name: nginx
+    state: present
+  when: ansible_facts['hostname'] == 'alma-ansible-01' or ansible_facts['hostname'] == 'rocky-ansible-01'
+- name: Ensure nginx service is enabled and started on all systems
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  when: ansible_facts['hostname'] == 'alma-ansible-01' or ansible_facts['hostname'] == 'rocky-ansible-01'
+- name: Deploy backend template file
+  ansible.builtin.template:
+    src: backend.jinja.j2
+    dest: /usr/share/nginx/html/index.html
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Restart nginx
+  when: ansible_facts['hostname'] == 'alma-ansible-01' or ansible_facts['hostname'] == 'rocky-ansible-01'
